@@ -151,6 +151,86 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }, { passive: true });
 
+  // ========================================
+  // CONTACT FORM — EMAIL DELIVERY
+  // Sends submissions to info@copecsa.org.za via FormSubmit
+  // ========================================
+  var contactForm = document.getElementById('contactForm');
+
+  if (contactForm) {
+    var contactStatus = document.getElementById('contactFormStatus');
+    var contactSubmitBtn = contactForm.querySelector('button[type="submit"]');
+    var originalBtnText = contactSubmitBtn ? contactSubmitBtn.textContent : '';
+
+    function setContactStatus(message, type) {
+      if (!contactStatus) return;
+      contactStatus.className = 'form-status form-status--visible' + (type ? ' form-status--' + type : '');
+      contactStatus.textContent = message;
+    }
+
+    function resetContactSubmitBtn() {
+      if (contactSubmitBtn) {
+        contactSubmitBtn.disabled = false;
+        contactSubmitBtn.textContent = originalBtnText;
+      }
+    }
+
+    function showContactError() {
+      setContactStatus('Sorry, your message could not be sent. Please email us directly at info@copecsa.org.za or try again shortly.', 'error');
+    }
+
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      var nameInput = document.getElementById('name');
+      var emailInput = document.getElementById('email');
+      var subjectSelect = document.getElementById('subject');
+      var messageInput = document.getElementById('message');
+      var subjectLabel = subjectSelect.options[subjectSelect.selectedIndex]
+        ? subjectSelect.options[subjectSelect.selectedIndex].text
+        : subjectSelect.value;
+
+      var payload = {
+        name: nameInput.value.trim(),
+        email: emailInput.value.trim(),
+        subject: subjectLabel,
+        message: messageInput.value.trim(),
+        _subject: 'New COPECSA website message: ' + subjectLabel + ' (' + nameInput.value.trim() + ')',
+        _template: 'table',
+        _captcha: 'false'
+      };
+
+      if (contactSubmitBtn) {
+        contactSubmitBtn.disabled = true;
+        contactSubmitBtn.textContent = 'Sending…';
+      }
+      setContactStatus('Sending your message…', 'sending');
+
+      fetch('https://formsubmit.co/ajax/info@copecsa.org.za', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        resetContactSubmitBtn();
+        if (data && data.success === 'true') {
+          contactForm.reset();
+          setContactStatus('Thank you — your message has been sent to info@copecsa.org.za. We will get back to you soon.', 'success');
+        } else {
+          showContactError();
+        }
+      })
+      .catch(function() {
+        resetContactSubmitBtn();
+        showContactError();
+      });
+    });
+  }
+
   // Initial calls
   updateScrollProgress();
   updateHeader();

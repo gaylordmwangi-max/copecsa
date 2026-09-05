@@ -50,18 +50,18 @@
       <div class="two-col">
         <div>
           <h2>Send Us a Message</h2>
-          <form>
+          <form id="contactForm" action="https://formsubmit.co/info@copecsa.org.za" method="POST">
             <div class="form-group">
               <label class="form-label" for="name">Full Name</label>
-              <input type="text" id="name" class="form-input" placeholder="Your full name" required>
+              <input type="text" id="name" name="name" class="form-input" placeholder="Your full name" required>
             </div>
             <div class="form-group">
               <label class="form-label" for="email">Email Address</label>
-              <input type="email" id="email" class="form-input" placeholder="your@email.com" required>
+              <input type="email" id="email" name="email" class="form-input" placeholder="your@email.com" required>
             </div>
             <div class="form-group">
               <label class="form-label" for="subject">Subject</label>
-              <select id="subject" class="form-input" required>
+              <select id="subject" name="subject" class="form-input" required>
                 <option value="" disabled selected>Select an enquiry type</option>
                 <option value="general">General Enquiry</option>
                 <option value="examination-guidelines">Examination Guidelines</option>
@@ -74,9 +74,10 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="message">Message</label>
-              <textarea id="message" class="form-textarea" placeholder="Your message..." required></textarea>
+              <textarea id="message" name="message" class="form-textarea" placeholder="Your message..." required></textarea>
             </div>
             <button type="submit" class="btn btn--primary btn--lg btn--full">Send Message</button>
+            <p id="contactFormStatus" class="form-status" role="status" aria-live="polite"></p>
           </form>
         </div>
         <div>
