@@ -73,6 +73,58 @@ php -S localhost:8000
 
 Then visit `http://localhost:8000`
 
+## SEO Tooling (SEOMonster MCP)
+
+The repo ships a project-scoped [SEOMonster](https://seomonster.avansaber.com) MCP server so Claude Code can audit and monitor the site's SEO using Search Console, GA4, PageSpeed Insights, Cloudflare and IndexNow data.
+
+| File | Purpose |
+|------|---------|
+| `.mcp.json` | Registers `seo-monster`, launched with `uvx seo-monster@0.9.3` (the version is pinned so every session runs the same code) |
+| `.claude/settings.json` | Approves the server ahead of time, so it loads without asking once the workspace is trusted |
+| `tests/seo-monster-mcp.test.mjs` | Smoke test: starts the server the same way Claude Code does, then checks the MCP handshake, the tools, the prompts and the `system_status` envelope |
+
+This is the committed version of:
+
+```bash
+claude mcp add --scope project seo-monster \
+  -e 'SEO_MCP_GSC_DEFAULT_SITE=${SEO_MCP_GSC_DEFAULT_SITE:-sc-domain:copecsa.org.za}' \
+  -e 'CF_ZONE=${CF_ZONE:-copecsa.org.za}' \
+  -- uvx seo-monster@0.9.3
+```
+
+**Requirements:** [`uv`](https://docs.astral.sh/uv/) (it provides `uvx`) and Python 3.11+. `uvx` fetches the package from PyPI on first use.
+
+**Verify:** run `npm run test:mcp`, or run `claude mcp list` and look for `seo-monster … ✓ Connected`. In a session, ask Claude to *"call seo-monster system_status"*.
+
+### Credentials
+
+The server works without credentials: the technical checks (`inspect_meta`, `robots_txt_validate`, `sitemap_health`, `validate_schema` and others) need none. The Google, Cloudflare and IndexNow tools return `AUTH_MISSING` with a fix-it hint until you configure them. **Never commit credentials.** Put them in your shell environment or in `~/.config/seo-mcp/config.toml` (mode `0600`).
+
+1. `uvx --from seo-monster@0.9.3 seo-monster setup` collects the Cloudflare token, PSI key, IndexNow key and default properties interactively, and writes the config file.
+2. `uvx --from seo-monster@0.9.3 seo-monster auth` does the one-time Google OAuth consent in the browser (Search Console, Indexing API and GA4). It needs a *Desktop app* OAuth client; see the [upstream auth guide](https://pypi.org/project/seo-monster/).
+
+| Variable | Default in `.mcp.json` | Purpose |
+|----------|------------------------|---------|
+| `SEO_MCP_GSC_DEFAULT_SITE` | `sc-domain:copecsa.org.za` | Default Search Console property. Set it to `https://copecsa.org.za/` if the site is a URL-prefix property |
+| `CF_ZONE` | `copecsa.org.za` | Default Cloudflare zone |
+| `SEO_MCP_GA4_PROPERTY_ID` | none | GA4 property, e.g. `properties/123456789` |
+| `PSI_API_KEY`, `CF_API_TOKEN`, `SEO_MCP_INDEXNOW_KEY` | none | Service keys. Read from your environment or the config file |
+
+Cloudflare write tools (cache purge, redirects, settings) stay off unless `SEO_MCP_ALLOW_DESTRUCTIVE=true`.
+
+**Claude Code on the web:** add the variables above in the environment settings. Those sessions can only reach hosts allowed by the environment's network policy. Google, Cloudflare and the live site must be reachable for the corresponding tools to work.
+
+### Useful workflows
+
+The server publishes MCP prompts that chain its tools together:
+
+- `technical_seo_audit` (url): meta tags, canonicals, redirects, mixed content, robots.txt and sitemap, ranked by severity
+- `pre_deploy_check` (urls): a go/no-go check before pushing to `main`
+- `structured_data_audit` (urls): JSON-LD validation, useful for `EducationalOrganization` markup
+- `weekly_review`: Search Console gainers and losers plus GA4 organic traffic (needs Google auth)
+
+To upgrade, change the pinned version in `.mcp.json` (the test checks that it stays pinned), then run `npm run test:mcp`.
+
 ## Design System
 
 ### Colours

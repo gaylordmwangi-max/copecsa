@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "seo-monster": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "seo-monster@0.9.3"
+      ],
+      "env": {
+        "SEO_MCP_GSC_DEFAULT_SITE": "${SEO_MCP_GSC_DEFAULT_SITE:-sc-domain:copecsa.org.za}",
+        "CF_ZONE": "${CF_ZONE:-copecsa.org.za}"
+      }
+    }
+  }
+}
