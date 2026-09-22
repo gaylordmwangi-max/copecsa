@@ -20,6 +20,8 @@ COPECSA (College of Pathologists of East, Central and Southern Africa) was estab
 ├── partners.html       # Partners & Collaborators
 ├── resources.html      # Publications & Resources
 ├── contact.html        # Contact Information & Form
+├── robots.txt          # Crawler rules + sitemap location
+├── sitemap.xml         # Every public page and document, for search engines
 └── assets/
     ├── css/style.css   # Design system & styles
     ├── js/main.js      # Navigation & interactivity
@@ -73,6 +75,17 @@ php -S localhost:8000
 
 Then visit `http://localhost:8000`
 
+## Search Engine Files
+
+`robots.txt` and `sitemap.xml` sit at the repo root, so a branch deploy serves them as they are. The Vite build copies them into `dist/` too (see `vite.config.js`).
+
+- `robots.txt` allows every crawler and points to `https://copecsa.org.za/sitemap.xml`.
+- `sitemap.xml` lists every page, plus the bylaws PDF. The homepage is listed as `https://copecsa.org.za/`, the other pages as `/<page>.html`. Each `<lastmod>` is the date of the file's last commit.
+
+**When you add, rename or remove a page**, update the `pages` list in `vite.config.js` and `sitemap.xml` together. When you change a page's content substantially, update its `<lastmod>`. `npm run test:seo` fails if the two files fall out of step. It also fails if any page links to an `.html` or `.pdf` file that is missing from the sitemap, if a sitemap entry points to a file that doesn't exist, or if the build stops copying the files.
+
+After deploying, submit the sitemap once in Google Search Console (Sitemaps, then `sitemap.xml`), or ask Claude to run `gsc_submit_sitemap` through the SEOMonster server below.
+
 ## SEO Tooling (SEOMonster MCP)
 
 The repo ships a project-scoped [SEOMonster](https://seomonster.avansaber.com) MCP server so Claude Code can audit and monitor the site's SEO using Search Console, GA4, PageSpeed Insights, Cloudflare and IndexNow data.
@@ -94,7 +107,7 @@ claude mcp add --scope project seo-monster \
 
 **Requirements:** [`uv`](https://docs.astral.sh/uv/) (it provides `uvx`) and Python 3.11+. `uvx` fetches the package from PyPI on first use.
 
-**Verify:** run `npm run test:mcp`, or run `claude mcp list` and look for `seo-monster … ✓ Connected`. In a session, ask Claude to *"call seo-monster system_status"*.
+**Verify:** run `npm run test:mcp` (or `npm test` for every check), or run `claude mcp list` and look for `seo-monster … ✓ Connected`. In a session, ask Claude to *"call seo-monster system_status"*.
 
 ### Credentials
 

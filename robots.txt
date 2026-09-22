@@ -1,0 +1,6 @@
+# robots.txt for https://copecsa.org.za
+# Every page on the site is public; let all crawlers in.
+User-agent: *
+Allow: /
+
+Sitemap: https://copecsa.org.za/sitemap.xml
