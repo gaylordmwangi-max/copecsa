@@ -138,6 +138,14 @@ The server publishes MCP prompts that chain its tools together:
 
 To upgrade, change the pinned version in `.mcp.json` (the test checks that it stays pinned), then run `npm run test:mcp`.
 
+## Claude Code Skills
+
+| Skill | Source | What it does |
+|-------|--------|--------------|
+| `brag-slim` | [latent-spaces/brag](https://github.com/latent-spaces/brag) | Turns this project, or any website URL, into a 15–25 second launch video (`brag.mp4`, a poster image and share copy) in `brag-output/`. Run `/brag-slim`, optionally with `--tone`, `--format` or `--duration` |
+
+Skills live in `.claude/skills/` and load automatically in Claude Code. `skills-lock.json` records each skill's source and content hash. To update to the latest upstream version, run `npx skills update brag-slim`. Skills run with full agent permissions, so review the `SKILL.md` diff before committing an update.
+
 ## Design System
 
 ### Colours
