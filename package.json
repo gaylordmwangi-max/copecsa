@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:mcp": "node --test tests/seo-monster-mcp.test.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:seo": "node --test tests/seo-files.test.mjs"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
